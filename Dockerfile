@@ -19,6 +19,7 @@ RUN rpm --rebuilddb \
 	&& rpm --import \
 		https://dl.iuscommunity.org/pub/ius/IUS-COMMUNITY-GPG-KEY \
 	&& yum -y install \
+		git \
 		centos-release-scl \
 		centos-release-scl-rh \
 		epel-release \
@@ -103,6 +104,8 @@ ADD etc/services-config/supervisor/supervisord.conf \
 	/etc/services-config/supervisor/
 ADD etc/services-config/supervisor/supervisord.d \
 	/etc/services-config/supervisor/supervisord.d/
+ADD etc/services-config/ssr/user-config.json \
+	/etc/services-config/ssr/
 
 RUN mkdir -p \
 		/etc/supervisord.d/ \
@@ -127,8 +130,19 @@ RUN mkdir -p \
 	&& ln -sf \
 		/etc/services-config/supervisor/supervisord.d/sshd-bootstrap.conf \
 		/etc/supervisord.d/sshd-bootstrap.conf \
+	&& ln -sf \
+		/etc/services-config/supervisor/supervisord.d/ssr.conf \
+		/etc/supervisord.d/ssr.conf \
 	&& chmod 700 \
 		/usr/sbin/{scmi,sshd-{bootstrap,wrapper}}
+
+# -----------------------------------------------------------------------------
+# ShadowSocksR
+# -----------------------------------------------------------------------------
+RUN git clone -b manyuser \
+		https://github.com/shadowsocksr/shadowsocksr.git \
+	&& cd /shadowsocksr \
+	&& bash initcfg.sh
 
 EXPOSE 22
 
